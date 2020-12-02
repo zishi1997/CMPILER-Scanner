@@ -30,15 +30,16 @@ public class Scanner {
         End_of_input, GPR, FPR, KEYWORD, ERROR, CHECKING
     }
 
-    //Regex Used: [(R|$)][0-9] | [(R|$)][(1-2)][0-9] | [(R|$)][3][0-1]
-    public static Token GPR_Recognizer(String str ){
+    //Regex Used: (R|$)([1-2][0-9]|[3][0-1]|[0-9])
+    public static Token GPR_Tokenizer(String str ){
         Token token =  new Token(TokenType.CHECKING, str);
         int pos = 0;
 
         if(token.value.length() <= 3 && token.value.length()>= 2){
+            //Check route of GPR DFA of regex (R|$)
             if(token.value.charAt(pos) == 'R' || token.value.charAt(pos) == '$'){
                 if(token.value.length() <=2){
-                    //Check route of GPR DFA of regex [(R|$)][0-9]
+                    //Check route of GPR DFA of regex [0-9]
                     pos = 1;
                     if(token.value.length() < 3){
                         if(token.value.charAt(pos) >= '0' && token.value.charAt(pos) <= '9'){
@@ -48,7 +49,7 @@ public class Scanner {
                     }
                 }
                 else{
-                    //Check route of GPR DFA of regex  [(R|$)][(1-2)][0-9]
+                    //Check route of GPR DFA of regex  [1-2][0-9]
                     pos=1;
                     if( (token.value.charAt(pos) >= '1') && (token.value.charAt(pos) <= '2') ){
                         pos=2;
@@ -57,7 +58,7 @@ public class Scanner {
                             return token;
                         }
                     }
-                    //Check route of GPR DFA of regex [(R|$)][3][0-1]
+                    //Check route of GPR DFA of regex [3][0-1]
                     pos = 1;
                     if(token.value.charAt(pos) == '3'){
                         pos = 2;
@@ -72,15 +73,15 @@ public class Scanner {
         return token;
     }
 
-    //Regex Used: [(F)][0-9] | [(F)][(1-2)][0-9] | [(F)][3][0-1]   |    [$][F][0-9] | [$][F][(1-2)][0-9] | [$][F][3][0-1]
-    public static Token FPR_Recognizer(String str ){
+    //Regex Used: F([1-2][0-9]|[3][0-1]|[0-9])| [$]F([1-2][0-9]|[3][0-1]|[0-9])
+    public static Token FPR_Tokenizer(String str ){
         Token token =  new Token(TokenType.CHECKING, str);
         int pos = 0;
 
         if(token.value.length() <= 5 && token.value.length()>=2){
             //For route with prefix 'F'
             if(token.value.charAt(pos) == 'F'){
-                //Check route of GPR DFA of regex [(F)][0-9]
+                //Check route of GPR DFA of regex [0-9]
                 pos = 1;
                 if(token.value.length() < 3){
                     if(token.value.charAt(pos) >= '0' && token.value.charAt(pos) <= '9'){
@@ -89,7 +90,7 @@ public class Scanner {
                     }
                 }
                 else{
-                    //Check route of FPR DFA of regex  [(F)][(1-2)][0-9]
+                    //Check route of FPR DFA of regex  [1-2][0-9]
                     pos = 1;
                     if(token.value.charAt(pos) >= '1' && token.value.charAt(pos) <= '2'){
                         pos++;
@@ -98,7 +99,7 @@ public class Scanner {
                             return token;
                         }
                     }
-                    //Check route of FPR DFA of regex [(F)][3][0-1]
+                    //Check route of FPR DFA of regex [3][0-1]
                     pos = 1;
                     if(token.value.charAt(pos) == '3'){
                         pos++;
@@ -109,21 +110,21 @@ public class Scanner {
                     }
                 }
             }
-            //For route with prefix '$F'
+            //For route with prefix [$]F
             else if(token.value.length() <= 5 && token.value.length()>2){
                 if(token.value.charAt(pos) == '$'){ 
                     pos =1;
                     if(token.value.charAt(pos) == 'F'){
                         pos = 2;
                         if(token.value.length() < 4){
-                            //Check route of FPR DFA of regex  [$][F][0-9]
+                            //Check route of FPR DFA of regex  [0-9]
                             if(token.value.charAt(pos) >= '0' && token.value.charAt(pos) <= '9'){
                                 token.setTokentype(TokenType.FPR);
                                 return token;
                             }
                         }
                         else{
-                            //Check route of FPR DFA of regex  [$][F][(1-2)][0-9]
+                            //Check route of FPR DFA of regex  [(1-2)][0-9]
                             if(token.value.charAt(pos) >= '1' && token.value.charAt(pos) <= '2'){
                                 pos++;
                                 if(token.value.charAt(pos) >= '0' && token.value.charAt(pos) <= '9'){
@@ -131,7 +132,7 @@ public class Scanner {
                                     return token;
                                 }
                             }
-                            //Check route of FPR DFA of regex [$][F][3][0-1]
+                            //Check route of FPR DFA of regex [3][0-1]
                             if(token.value.charAt(pos) == '3'){
                                 pos++;
                                 if(token.value.charAt(pos) >= '0' && token.value.charAt(pos) <= '1'){
@@ -148,7 +149,7 @@ public class Scanner {
     }
 
     //Regex Used:  (D)((ADD)(I?U)|(MUL(TU?)))
-    public static Token KEYWORD_Recognizer(String str ){
+    public static Token KEYWORD_Tokenizer(String str ){
         Token token =  new Token(TokenType.CHECKING, str);
         int pos = 0;
 
@@ -203,13 +204,17 @@ public class Scanner {
         String line = null;
 
         try {
-            // open input stream test.txt for reading purpose.
-            BufferedReader br = new BufferedReader(new FileReader("Test.txt"));
+            BufferedReader br = new BufferedReader(new FileReader("Input.txt"));
 
             File outputFile = new File("Output.txt");
             outputFile.createNewFile();
 
             FileWriter myWriter = new FileWriter("Output.txt");
+
+            System.out.println("--------------------READING THE FILE---------------------");
+            System.out.println("---------------------CREATING TOKENS---------------------");
+            System.out.println("-------CLASSIFYING TOKENS BASED ON THEIR PATTERNS--------");
+            System.out.println("------------WRITING THE RESULT TO OUTPUT FILE------------");
             
             while ((line = br.readLine()) != null) {
                 //Read line of the file 
@@ -222,21 +227,21 @@ public class Scanner {
                         Token token = new Token(TokenType.CHECKING, element);
 
                         //Identify if the token is a GPR
-                        token.setTokentype(GPR_Recognizer(element).getTokentype());
+                        token.setTokentype(GPR_Tokenizer(element).getTokentype());
 
                         //Identify if the token is a FPR
                         if(token.getTokentype()==TokenType.CHECKING)
-                        token.setTokentype(FPR_Recognizer(element).getTokentype());
+                        token.setTokentype(FPR_Tokenizer(element).getTokentype());
 
                         //Identify if the token is a KEYWORD
                         if(token.getTokentype()==TokenType.CHECKING)
-                        token.setTokentype(KEYWORD_Recognizer(element).getTokentype());
+                        token.setTokentype(KEYWORD_Tokenizer(element).getTokentype());
 
                         //If all types are checked and not any of them, then it is an Error
                         if(token.getTokentype()==TokenType.CHECKING)
                         token.setTokentype(TokenType.ERROR);
                         
-                        System.out.println(element+ " : " + token.getTokentype());
+                        //System.out.println(element+ " : " + token.getTokentype());
                         outputStr += token.getTokentype().toString() + " ";
                     }
                 }
@@ -244,7 +249,8 @@ public class Scanner {
                 myWriter.write(outputStr);
             }
             br.close();
-            myWriter.close();       
+            myWriter.close(); 
+            System.out.println("\nOutput successfully generated!");      
         } catch(Exception e) {
             e.printStackTrace();
         }
