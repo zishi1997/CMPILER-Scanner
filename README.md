@@ -13,7 +13,7 @@ The scanner.java file contains the main function and all of the codes of the pro
 
 
 Instructions on how to run this program:
-  1. Download/clone the whole project into your workspace from github.
+  1. Download/clone the whole project into your workspace from github/Gdrive Link.
   2. Open the project in any of your IDE that can run java
   3. Edit the input.txt if you want to add or edit the test cases that serves as the input to the program.
   4. Open and Run scanner.java in the IDE
